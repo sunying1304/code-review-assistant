@@ -118,6 +118,37 @@ code-review/
 - **AI 模型**：通义千问 qwen-long
 - **公网穿透**：Cloudflare Tunnel（免费，无需注册）
 
-## 评审维度说明
+## 测试用例
 
-详见 [REVIEW_STANDARDS.md](REVIEW_STANDARDS.md)
+5 个不同质量等级的代码样本，可直接用于验证工具效果：
+
+| 文件 | 语言 | 预期得分 | 等级 | 主要问题 |
+|------|------|---------|------|---------|
+| [level1_critical.py](test_cases/level1_critical.py) | Python | 0–39 | 🔴 极差 | SQL 注入、硬编码密钥、裸 except 吞异常 |
+| [level2_poor.py](test_cases/level2_poor.py) | Python | 40–59 | 🟠 较差 | MD5 密码哈希、命名不规范、非 timing-safe 比较 |
+| [level3_medium.js](test_cases/level3_medium.js) | JavaScript | 60–74 | 🟡 中等 | 同步 XHR 阻塞主线程、innerHTML XSS 风险、var 声明 |
+| [level4_good.py](test_cases/level4_good.py) | Python | 75–89 | 🟢 良好 | 少量 Info：缺 docstring、日志级别可优化 |
+| [level5_excellent.js](test_cases/level5_excellent.js) | JavaScript | 90–100 | ✅ 优秀 | 几乎无问题，完整类型注释、安全实践 |
+
+---
+
+## 评审标准说明
+
+详见 [REVIEW_STANDARDS.md](REVIEW_STANDARDS.md)，核心规则如下：
+
+### 四个评审维度
+
+| 维度 | 关注点 |
+|------|-------|
+| 可读性 | 命名规范、注释质量、函数长度、嵌套层级 |
+| 性能 | 时间/空间复杂度、循环内重复操作、阻塞 I/O |
+| 安全性 | SQL 注入、XSS、硬编码密钥、输入验证 |
+| 最佳实践 | 错误处理、设计模式、废弃 API、全局状态 |
+
+### 严重程度分级
+
+| 等级 | 标识 | 含义 | 扣分 |
+|------|------|------|------|
+| Critical | 🔴 | 严重问题，影响安全性或导致程序崩溃 | -15 分/个 |
+| Warning | 🟡 | 中等问题，影响性能、可维护性或存在潜在风险 | -5 分/个 |
+| Info | 🔵 | 轻微问题，代码风格或可选优化 | -1 分/个 |
